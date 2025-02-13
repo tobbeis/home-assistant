@@ -1,0 +1,49 @@
+alias: vacuum options
+sequence:
+  - action: vacuum.send_command
+    metadata: {}
+    data:
+      command: app_segment_clean
+      params: |
+        {% set rooms = {
+           "input_boolean.clean_hall": 16,
+           "input_boolean.clean_kok": 18,
+           "input_boolean.clean_sovrum": 19,
+           "input_boolean.clean_vardagsrum": 17,
+           "input_boolean.clean_kontor": 20 } %}
+         {% set ns = namespace(room_numbers=[]) %} {% for room in
+         state_attr('group.vacuum_input_booleans', 'entity_id') %} {% if states(room)
+         == 'on' %} {% set ns.room_numbers = ns.room_numbers + [rooms.get(room)] %}
+         {% endif %} {% endfor %} 
+         [{"segments":{{ ns.room_numbers }},"repeat":{{ states('input_number.vacuum_repeats') | int(0) }}}]
+    target:
+      entity_id: vacuum.roborock_s6_maxv
+  - action: browser_mod.close_popup
+    metadata: {}
+    data:
+      browser_id:
+        - d3f7558c05871dc1dc8e3df82e28c2d5
+  - wait_for_trigger:
+      - trigger: state
+        entity_id:
+          - vacuum.roborock_s6_maxv
+        to: docked
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+        - input_boolean.clean_allt
+        - input_boolean.clean_hall
+        - input_boolean.clean_kok
+        - input_boolean.clean_kontor
+        - input_boolean.clean_sovrum
+        - input_boolean.clean_vardagsrum
+  - action: input_number.set_value
+    metadata: {}
+    data:
+      value: 1
+    target:
+      entity_id: input_number.vacuum_repeats
+description: Välja rum + överfarter
+icon: mdi:vacuum
