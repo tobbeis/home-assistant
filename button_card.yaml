@@ -1,0 +1,139 @@
+type: custom:button-card
+template: basic
+icon: mdi:robot-vacuum
+entity: vacuum.roborock_s6_maxv
+name: Roborock
+state:
+  - value: docked
+    color: rgb(255,255,255)
+    icon: mdi:robot-vacuum-off
+  - value: cleaning
+    color: rgb(0,255,0)
+  - value: returning
+    color: rgb(255,0,0)
+    icon: mdi:robot-vacuum-alert
+styles:
+  card:
+    - border: none
+    - background: transparent
+hold_action:
+  action: call-service
+  service: vacuum.send_command
+  data:
+    entity_id: vacuum.roborock_s6_maxv
+    command: app_charge
+double_tap_action:
+  action: more-info
+tap_action:
+  action: fire-dom-event
+  browser_mod:
+    service: browser_mod.popup
+    data:
+      content:
+        type: vertical-stack
+        cards:
+          - type: heading
+            heading: Vilka rum vill du städa?
+            icon: mdi:vacuum-outline
+            tap_action:
+              action: perform_action
+              perform_action: vacuum.send_command
+              data:
+                entity_id: vacuum.roborock_s6_maxv
+                command: app_charge
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                template: standard
+                name: Hall
+                icon: mdi:shoe-print
+                entity: input_boolean.clean_hall
+                styles:
+                  card:
+                    - border: none
+              - type: custom:button-card
+                template: standard
+                name: Kök
+                icon: mdi:human-female
+                entity: input_boolean.clean_kok
+                styles:
+                  card:
+                    - border: none
+              - type: custom:button-card
+                template: standard
+                name: Sovrum
+                icon: mdi:bed-outline
+                entity: input_boolean.clean_sovrum
+                styles:
+                  card:
+                    - border: none
+              - type: custom:button-card
+                template: standard
+                name: Vardagsrum
+                icon: mdi:television-classic
+                entity: input_boolean.clean_vardagsrum
+                styles:
+                  card:
+                    - border: none
+              - type: custom:button-card
+                template: standard
+                name: Kontor
+                icon: mdi:desk-lamp
+                entity: input_boolean.clean_kontor
+                styles:
+                  card:
+                    - border: none
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                styles:
+                  card:
+                    - border: none
+                    - height: 185px
+                  name:
+                    - align-self: center
+                  state:
+                    - font-weight: bold
+                    - align-self: center
+                  grid:
+                    - grid-template-columns: 1fr 1fr 1fr
+                    - grid-template-rows: auto
+                    - grid-template-areas: "\"n n s\" \"n n s\" \"slider slider slider\""
+                custom_fields:
+                  slider:
+                    card:
+                      type: custom:slider-entity-row
+                      entity: input_number.vacuum_repeats
+                      full_row: true
+                      hide_state: true
+                name: Antal överfarter
+                entity: input_number.vacuum_repeats
+                icon: mdi:multiplication
+                show_icon: false
+                show_name: true
+                show_state: true
+              - type: custom:button-card
+                template: basic
+                name: Välj alla
+                icon: mdi:tally-mark-5
+                styles:
+                  card:
+                    - border: none
+                state:
+                  - value: "on"
+                    color: rgb(255,255,255)
+                  - value: "off"
+                    color: rgb(255,255,255)
+                entity: group.vacuum_input_booleans
+              - type: custom:button-card
+                template: basic
+                icon: mdi:check-bold
+                name: Kör
+                styles:
+                  card:
+                    - border: none
+                tap_action:
+                  action: call-service
+                  service: script.turn_on
+                  service_data:
+                    entity_id: script.vacuum_options
